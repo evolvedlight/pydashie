@@ -62,7 +62,7 @@ def widget_html(widget_name):
 def events():
     def generate():
         while True:
-            timeString = datetime.datetime.now().strftime('%F %T +0000')
+            timeString = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S +0000')
             yield 'data: {"value":%s,"id":"synergy","updatedAt":"%s"}\n\n' % (random.randint(0, 100), timeString)
             time.sleep(2)
     return Response(generate(), mimetype='text/event-stream')
