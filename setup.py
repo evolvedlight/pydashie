@@ -1,9 +1,9 @@
 from distutils.core import setup
 
 setup(
-    name='PyDashy',
+    name='PyDashie',
     version='0.1dev',
-    packages=['pydashy',],
+    packages=['pydashie',],
     license='MIT',
     long_description=open('README.txt').read(),
 )
