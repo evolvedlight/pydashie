@@ -8,7 +8,7 @@ import coffeescript
 
 from repeated_timer import RepeatedTimer
 
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, send_from_directory
 app = Flask(__name__)
 
 events_queue = Queue.Queue()
@@ -17,7 +17,7 @@ seedX = 0
 
 @app.route("/")
 def hello():
-    return render_template('main.html', title='pyDashie Dashboard')
+    return render_template('main.html', title='pyDashie')
 
 @app.route("/assets/application.js")
 def javascripts():
@@ -60,12 +60,16 @@ def application_css():
         output = output + open(path).read()
     return Response(output, mimetype='text/css')
 
+@app.route('/assets/images/<path:filename>')
+def send_static_img(filename):
+    directory = os.path.join(os.getcwd(), 'assets', 'images')
+    return send_from_directory(directory, filename)
+
 @app.route('/views/<widget_name>.html')
 def widget_html(widget_name):
     base_directory = os.getcwd()
     path = os.path.join(base_directory, 'widgets', widget_name, '%s.html' % widget_name)
     return open(path).read()
-
 
 @app.route('/events')
 def events():
@@ -96,7 +100,6 @@ def sample_buzzwords():
     events_queue.put(formatted_json)
 
 def sample_convergence():
-    print 'Added convergence'
     global seedX
     if not seedX:
         seedX = 0
@@ -117,7 +120,7 @@ if __name__ == "__main__":
     rt3 = RepeatedTimer(1, sample_convergence)
     try:
         print 'Before app run'
-        app.run(debug=True, port=5000, threaded=True)
+        app.run(debug=True, port=5000, threaded=True, use_reloader=False, use_debugger=False)
     finally:
         rt.stop()
         rt2.stop()
