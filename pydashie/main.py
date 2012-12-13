@@ -1,5 +1,6 @@
 import os
 import json
+import time
 import random
 import Queue
 import datetime
@@ -8,10 +9,10 @@ import coffeescript
 
 from repeated_timer import RepeatedTimer
 
-from flask import Flask, render_template, Response, send_from_directory
+from flask import Flask, render_template, Response, send_from_directory, g
 app = Flask(__name__)
 
-events_queue = Queue.Queue()
+events_queue = []
 items = collections.deque()
 seedX = 0
 
@@ -73,31 +74,41 @@ def widget_html(widget_name):
 
 @app.route('/events')
 def events():
-    return Response(pop_queue(), mimetype='text/event-stream')
+    current_event_queue = Queue.Queue()
+    events_queue.append(current_event_queue)
+    return Response(pop_queue(current_event_queue), mimetype='text/event-stream')
 
-def pop_queue():
+@app.teardown_request
+def teardown_request(*args, **kwargs):
+    print args, kwargs
+
+def pop_queue(current_event_queue):
     while True:
-        yield events_queue.get()
+        yield current_event_queue.get()
         
+def send_event(widget_id, body):
+    body['id'] = widget_id
+    body['updateAt'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S +0000')
+    formatted_json = 'data: %s\n\n' % (json.dumps(body))
+    print 'Current Connection Feed Pool: %s' % len(events_queue)
+    for event_queue in events_queue:
+        event_queue.put(formatted_json)
+    
 def sample_synergy():
-    synergy_data = {'value': random.randint(0, 100), 
-                    'id': 'synergy', 
-                    'updateAt': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S +0000')}
-    formatted_json = 'data: %s\n\n' % (json.dumps(synergy_data))
-    events_queue.put(formatted_json)
+    synergy_data = {'value': random.randint(0, 100)}
+    send_event('synergy', synergy_data)                
     
 def sample_buzzwords():
-    items = [
-             {'label': 'Test',
-              'value': random.randint(0, 20)},
-             {'label': 'Test2',
-              'value': random.randint(0, 20)},
-             ]
-    item_data = {'items': items, 
-                    'id': 'buzzwords', 
-                    'updateAt': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S +0000')}
-    formatted_json = 'data: %s\n\n' % (json.dumps(item_data))
-    events_queue.put(formatted_json)
+    my_little_pony_names = ['Rainbow Dash',
+                            'Blossomforth',
+                            'Derpy',
+                            'Fluttershy',
+                            'Lofty',
+                            'Scootaloo',
+                            'Skydancer']
+    items = [{'label': pony_name, 'value': random.randint(0, 20)} for pony_name in my_little_pony_names]
+    buzzwords_data = {'items':items}
+    send_event('buzzwords', buzzwords_data)
 
 def sample_convergence():
     global seedX
@@ -108,15 +119,12 @@ def sample_convergence():
     seedX += 1
     if len(items) > 10:
         items.popleft()
-    item_data = {'points': list(items), 
-                    'id': 'convergence', 
-                    'updateAt': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S +0000')}
-    formatted_json = 'data: %s\n\n' % (json.dumps(item_data))
-    events_queue.put(formatted_json)
+    item_data = {'points': list(items)}
+    send_event('convergence', item_data)
     
 if __name__ == "__main__":
     rt = RepeatedTimer(1, sample_synergy)
-    rt2 = RepeatedTimer(1, sample_buzzwords)
+    rt2 = RepeatedTimer(5, sample_buzzwords)
     rt3 = RepeatedTimer(1, sample_convergence)
     try:
         print 'Before app run'
