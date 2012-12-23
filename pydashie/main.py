@@ -6,13 +6,12 @@ import Queue
 import datetime
 import collections
 import coffeescript
-
+import SocketServer
 from repeated_timer import RepeatedTimer
-
-from flask import Flask, render_template, Response, send_from_directory, g
+from flask import Flask, render_template, Response, send_from_directory, g, request
 app = Flask(__name__)
 
-events_queue = []
+events_queue = {}
 items = collections.deque()
 seedX = 0
 
@@ -74,13 +73,10 @@ def widget_html(widget_name):
 
 @app.route('/events')
 def events():
+    event_stream_port = request.environ['REMOTE_PORT']
     current_event_queue = Queue.Queue()
-    events_queue.append(current_event_queue)
+    events_queue[event_stream_port] = current_event_queue
     return Response(pop_queue(current_event_queue), mimetype='text/event-stream')
-
-@app.teardown_request
-def teardown_request(*args, **kwargs):
-    print args, kwargs
 
 def pop_queue(current_event_queue):
     while True:
@@ -91,7 +87,7 @@ def send_event(widget_id, body):
     body['updateAt'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S +0000')
     formatted_json = 'data: %s\n\n' % (json.dumps(body))
     print 'Current Connection Feed Pool: %s' % len(events_queue)
-    for event_queue in events_queue:
+    for event_queue in events_queue.values():
         event_queue.put(formatted_json)
     
 def sample_synergy():
@@ -121,14 +117,19 @@ def sample_convergence():
         items.popleft()
     item_data = {'points': list(items)}
     send_event('convergence', item_data)
-    
+
+def close_stream(*args, **kwargs):
+    remote_port = args[2][1]
+    del events_queue[remote_port]
+
 if __name__ == "__main__":
+    SocketServer.BaseServer.handle_error = close_stream
     rt = RepeatedTimer(1, sample_synergy)
     rt2 = RepeatedTimer(5, sample_buzzwords)
     rt3 = RepeatedTimer(1, sample_convergence)
     try:
         print 'Before app run'
-        app.run(debug=True, port=5000, threaded=True, use_reloader=False, use_debugger=False)
+        app.run(debug=True, port=5000, threaded=True, use_reloader=False, use_debugger=True)
     finally:
         rt.stop()
         rt2.stop()
