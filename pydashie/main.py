@@ -1,14 +1,15 @@
 import os
 import json
-import time
-import random
 import Queue
+import random
+import logging
 import datetime
 import collections
 import coffeescript
 import SocketServer
 from repeated_timer import RepeatedTimer
-from flask import Flask, render_template, Response, send_from_directory, g, request
+from flask import Flask, render_template, Response, send_from_directory, request, current_app
+
 app = Flask(__name__)
 
 events_queue = {}
@@ -76,6 +77,7 @@ def events():
     event_stream_port = request.environ['REMOTE_PORT']
     current_event_queue = Queue.Queue()
     events_queue[event_stream_port] = current_event_queue
+    current_app.logger.info('New Client %s connected. Total Clients: %s' % (event_stream_port, len(events_queue)))
     return Response(pop_queue(current_event_queue), mimetype='text/event-stream')
 
 def pop_queue(current_event_queue):
@@ -86,7 +88,6 @@ def send_event(widget_id, body):
     body['id'] = widget_id
     body['updateAt'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S +0000')
     formatted_json = 'data: %s\n\n' % (json.dumps(body))
-    print 'Current Connection Feed Pool: %s' % len(events_queue)
     for event_queue in events_queue.values():
         event_queue.put(formatted_json)
     
@@ -119,8 +120,9 @@ def sample_convergence():
     send_event('convergence', item_data)
 
 def close_stream(*args, **kwargs):
-    remote_port = args[2][1]
-    del events_queue[remote_port]
+    event_stream_port = args[2][1]
+    del events_queue[event_stream_port]
+    print('Client %s disconnected. Total Clients: %s' % (event_stream_port, len(events_queue)))
 
 if __name__ == "__main__":
     SocketServer.BaseServer.handle_error = close_stream
@@ -128,7 +130,6 @@ if __name__ == "__main__":
     rt2 = RepeatedTimer(5, sample_buzzwords)
     rt3 = RepeatedTimer(1, sample_convergence)
     try:
-        print 'Before app run'
         app.run(debug=True, port=5000, threaded=True, use_reloader=False, use_debugger=True)
     finally:
         rt.stop()
