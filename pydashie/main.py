@@ -14,6 +14,7 @@ app = Flask(__name__)
 
 events_queue = {}
 items = collections.deque()
+last_events = {}
 seedX = 0
 
 @app.route("/")
@@ -78,16 +79,24 @@ def events():
     current_event_queue = Queue.Queue()
     events_queue[event_stream_port] = current_event_queue
     current_app.logger.info('New Client %s connected. Total Clients: %s' % (event_stream_port, len(events_queue)))
+    
+    #Start the newly connected client off by pushing the current last events
+    for event in last_events.values():
+        print 'Pushed %s' % event
+        current_event_queue.put(event)
     return Response(pop_queue(current_event_queue), mimetype='text/event-stream')
 
 def pop_queue(current_event_queue):
     while True:
-        yield current_event_queue.get()
+        data = current_event_queue.get()
+        print 'Popping data %s' % data
+        yield data
         
 def send_event(widget_id, body):
     body['id'] = widget_id
     body['updateAt'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S +0000')
     formatted_json = 'data: %s\n\n' % (json.dumps(body))
+    last_events[widget_id] = formatted_json
     for event_queue in events_queue.values():
         event_queue.put(formatted_json)
     
@@ -126,12 +135,17 @@ def close_stream(*args, **kwargs):
 
 if __name__ == "__main__":
     SocketServer.BaseServer.handle_error = close_stream
-    rt = RepeatedTimer(1, sample_synergy)
-    rt2 = RepeatedTimer(5, sample_buzzwords)
-    rt3 = RepeatedTimer(1, sample_convergence)
+    
+    refreshJobs = {
+              sample_synergy: 1,
+              sample_buzzwords: 30,
+              sample_convergence: 1
+    }
+    
+    timers = [RepeatedTimer(time, function) for function, time in refreshJobs]
+    
     try:
         app.run(debug=True, port=5000, threaded=True, use_reloader=False, use_debugger=True)
     finally:
-        rt.stop()
-        rt2.stop()
-        rt3.stop()
+        for timer in timers:
+            timer.stop()
