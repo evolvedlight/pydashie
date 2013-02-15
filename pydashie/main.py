@@ -136,12 +136,12 @@ def close_stream(*args, **kwargs):
 if __name__ == "__main__":
     SocketServer.BaseServer.handle_error = close_stream
     
-    refreshJobs = {
-              sample_synergy: 1,
-              sample_buzzwords: 30,
-              sample_convergence: 1
-    }
-    
+    refreshJobs = [
+        (sample_synergy, 1,),
+        (sample_buzzwords, 30,),
+        (sample_convergence, 1,),
+    ]
+
     timers = [RepeatedTimer(time, function) for function, time in refreshJobs]
     
     try:
