@@ -1,5 +1,5 @@
-PyDashy
-#######
+PyDashie
+########
 
 `Main Documentation <http://evolvedlight.github.com/pydashie/>`_
 
