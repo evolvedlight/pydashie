@@ -5,5 +5,5 @@ setup(
     version='0.1dev',
     packages=['pydashie',],
     license='MIT',
-    long_description=open('README.txt').read(),
+    long_description=open('README.rst').read(),
 )
