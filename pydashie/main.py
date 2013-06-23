@@ -18,7 +18,7 @@ last_events = {}
 seedX = 0
 
 @app.route("/")
-def hello():
+def main():
     return render_template('main.html', title='pyDashie')
 
 @app.route("/assets/application.js")
@@ -38,7 +38,7 @@ def javascripts():
 #        'assets/javascripts/dashing.gridster.coffee'
 #    ]
     scripts = ['assets/javascripts/application.js']
-    
+
     base_directory = os.getcwd()
     full_paths = [os.path.join(base_directory, script_name) for script_name in scripts]
     output = ''
@@ -79,7 +79,7 @@ def events():
     current_event_queue = Queue.Queue()
     events_queue[event_stream_port] = current_event_queue
     current_app.logger.info('New Client %s connected. Total Clients: %s' % (event_stream_port, len(events_queue)))
-    
+
     #Start the newly connected client off by pushing the current last events
     for event in last_events.values():
         print 'Pushed %s' % event
@@ -91,7 +91,7 @@ def pop_queue(current_event_queue):
         data = current_event_queue.get()
         print 'Popping data %s' % data
         yield data
-        
+
 def send_event(widget_id, body):
     body['id'] = widget_id
     body['updateAt'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S +0000')
@@ -99,11 +99,11 @@ def send_event(widget_id, body):
     last_events[widget_id] = formatted_json
     for event_queue in events_queue.values():
         event_queue.put(formatted_json)
-    
+
 def sample_synergy():
     synergy_data = {'value': random.randint(0, 100)}
-    send_event('synergy', synergy_data)                
-    
+    send_event('synergy', synergy_data)
+
 def sample_buzzwords():
     my_little_pony_names = ['Rainbow Dash',
                             'Blossomforth',
@@ -120,7 +120,7 @@ def sample_convergence():
     global seedX
     if not seedX:
         seedX = 0
-    items.append({'x':seedX, 
+    items.append({'x':seedX,
                   'y':random.randint(0,20)})
     seedX += 1
     if len(items) > 10:
@@ -135,7 +135,7 @@ def close_stream(*args, **kwargs):
 
 if __name__ == "__main__":
     SocketServer.BaseServer.handle_error = close_stream
-    
+
     refreshJobs = [
         (sample_synergy, 1,),
         (sample_buzzwords, 30,),
@@ -143,7 +143,7 @@ if __name__ == "__main__":
     ]
 
     timers = [RepeatedTimer(time, function) for function, time in refreshJobs]
-    
+
     try:
         app.run(debug=True, port=5000, threaded=True, use_reloader=False, use_debugger=True)
     finally:
