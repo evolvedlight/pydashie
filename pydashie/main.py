@@ -104,31 +104,9 @@ def close_stream(*args, **kwargs):
     del events_queue[event_stream_port]
     print('Client %s disconnected. Total Clients: %s' % (event_stream_port, len(events_queue)))
 
-def test_app():
+if __name__ == "__main__":
     import SocketServer
     SocketServer.BaseServer.handle_error = close_stream
 
-    import test_samplers
-
-    samplers = [
-        test_samplers.SynergySampler(xyzzy, 3),
-        test_samplers.BuzzwordsSampler(xyzzy, 2), # 10
-        test_samplers.ConvergenceSampler(xyzzy, 1),
-    ]
-
-    try:
-        app.run(debug=True,
-                port=5000,
-                threaded=True,
-                use_reloader=False,
-                use_debugger=True
-                )
-    finally:
-        print "Stopping %d timers" % len(samplers)
-        for (i, sampler) in enumerate(samplers):
-            sampler.stop()
-
-    print "Done"
-
-if __name__ == "__main__":
-    test_app()
+    import example_app
+    example_app.run(app, xyzzy)
