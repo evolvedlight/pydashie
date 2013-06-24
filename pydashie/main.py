@@ -15,23 +15,29 @@ def javascripts():
             'assets/javascripts/jquery.js',
             'assets/javascripts/es5-shim.js',
             'assets/javascripts/d3.v2.min.js',
+
             'assets/javascripts/batman.js',
             'assets/javascripts/batman.jquery.js',
+
             'assets/javascripts/jquery.gridster.js',
             'assets/javascripts/jquery.leanModal.min.js',
-            'assets/javascripts/dashing.coffee',
+
+            #'assets/javascripts/dashing.coffee',
+            'assets/javascripts/dashing.gridster.coffee',
+
             'assets/javascripts/jquery.knob.js',
             'assets/javascripts/rickshaw.min.js',
-            'assets/javascripts/application.coffee',
-            'assets/javascripts/dashing.gridster.coffee'
+            #'assets/javascripts/application.coffee',
+            'assets/javascripts/application.js',
         ]
-        nizzle = False
+        nizzle = True
         if not nizzle:
             scripts = ['assets/javascripts/application.js']
 
         output = []
         for path in scripts:
             print path
+            output.append('// JS: %s\n' % path)
             if '.coffee' in path:
                 print('Compiling Coffee for %s ' % path)
                 contents = coffeescript.compile_file(path)

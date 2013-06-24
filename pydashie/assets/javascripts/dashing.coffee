@@ -4,58 +4,59 @@
 #= require batman.jquery
 
 
-Batman.Filters.prettyNumber = (num) ->
-  num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") unless isNaN(num)
+#Batman.Filters.prettyNumber = (num) ->
+#  num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") unless isNaN(num)
+#
+#Batman.Filters.dashize = (str) ->
+#  dashes_rx1 = /([A-Z]+)([A-Z][a-z])/g;
+#  dashes_rx2 = /([a-z\d])([A-Z])/g;
+#
+#  return str.replace(dashes_rx1, '$1_$2').replace(dashes_rx2, '$1_$2').replace('_', '-').toLowerCase()
+#
+#Batman.Filters.shortenedNumber = (num) ->
+#  return num if isNaN(num)
+#  if num >= 1000000000
+#    (num / 1000000000).toFixed(1) + 'B'
+#  else if num >= 1000000
+#    (num / 1000000).toFixed(1) + 'M'
+#  else if num >= 1000
+#    (num / 1000).toFixed(1) + 'K'
+#  else
+#    num
 
-Batman.Filters.dashize = (str) ->
-  dashes_rx1 = /([A-Z]+)([A-Z][a-z])/g;
-  dashes_rx2 = /([a-z\d])([A-Z])/g;
-
-  return str.replace(dashes_rx1, '$1_$2').replace(dashes_rx2, '$1_$2').replace('_', '-').toLowerCase()
-
-Batman.Filters.shortenedNumber = (num) ->
-  return num if isNaN(num)
-  if num >= 1000000000
-    (num / 1000000000).toFixed(1) + 'B'
-  else if num >= 1000000
-    (num / 1000000).toFixed(1) + 'M'
-  else if num >= 1000
-    (num / 1000).toFixed(1) + 'K'
-  else
-    num
-
-class window.Dashing extends Batman.App
-  @root ->
-Dashing.params = Batman.URI.paramsFromQuery(window.location.search.slice(1));
-
-class Dashing.Widget extends Batman.View
-  constructor:  ->
-    # Set the view path
-    @constructor::source = Batman.Filters.underscore(@constructor.name)
-    super
-
-    @mixin($(@node).data())
-    Dashing.widgets[@id] ||= []
-    Dashing.widgets[@id].push(@)
-    @mixin(Dashing.lastEvents[@id]) # in case the events from the server came before the widget was rendered
-
-    type = Batman.Filters.dashize(@view)
-    $(@node).addClass("widget widget-#{type} #{@id}")
-
-  @accessor 'updatedAtMessage', ->
-    if updatedAt = @get('updatedAt')
-      timestamp = updatedAt.toString().match(/\d*:\d*/)[0]
-      "Last updated at #{timestamp}"
-
-  @::on 'ready', ->
-    Dashing.Widget.fire 'ready'
-
-  receiveData: (data) =>
-    @mixin(data)
-    @onData(data)
-
-  onData: (data) =>
-    # Widgets override this to handle incoming data
+#class window.Dashing extends Batman.App
+#  @root ->
+#Dashing.params = Batman.URI.paramsFromQuery(window.location.search.slice(1));
+#
+#class Dashing.Widget extends Batman.View
+#  constructor:  ->
+#    # Set the view path
+#    @constructor::source = Batman.Filters.underscore(@constructor.name)
+#    super
+#
+#    @mixin($(@node).data())
+#    Dashing.widgets[@id] ||= []
+#    Dashing.widgets[@id].push(@)
+#    @mixin(Dashing.lastEvents[@id]) # in case the events from the server came before the widget was rendered
+#
+#    type = Batman.Filters.dashize(@view)
+#    $(@node).addClass("widget widget-#{type} #{@id}")
+#
+#  @accessor 'updatedAtMessage', ->
+#    if updatedAt = @get('updatedAt')
+#      timestamp = updatedAt.toString().match(/\d*:\d*/)[0]
+#      "Last updated at #{timestamp}"
+#
+#  @::on 'ready', ->
+#    Dashing.Widget.fire 'ready'
+#
+#  receiveData: (data) =>
+#    @mixin(data)
+#    @onData(data)
+#
+#  onData: (data) =>
+#    # Widgets override this to handle incoming data
+#
 
 Dashing.AnimatedValue =
   get: Batman.Property.defaultAccessor.get
