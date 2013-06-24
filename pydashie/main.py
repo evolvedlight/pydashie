@@ -28,7 +28,7 @@ def javascripts():
             'assets/javascripts/jquery.knob.js',
             'assets/javascripts/rickshaw.min.js',
             #'assets/javascripts/application.coffee',
-            'assets/javascripts/application.js',
+            'assets/javascripts/app.js',
         ]
         nizzle = True
         if not nizzle:
@@ -36,7 +36,6 @@ def javascripts():
 
         output = []
         for path in scripts:
-            print path
             output.append('// JS: %s\n' % path)
             if '.coffee' in path:
                 print('Compiling Coffee for %s ' % path)
