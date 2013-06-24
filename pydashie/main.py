@@ -29,10 +29,8 @@ def javascripts():
         if not nizzle:
             scripts = ['assets/javascripts/application.js']
 
-        base_directory = os.getcwd()
-        full_paths = [os.path.join(base_directory, script_name) for script_name in scripts]
         output = []
-        for path in full_paths:
+        for path in scripts:
             print path
             if '.coffee' in path:
                 print('Compiling Coffee for %s ' % path)
@@ -64,24 +62,21 @@ def application_css():
     scripts = [
         'assets/stylesheets/application.css',
     ]
-    base_directory = os.getcwd()
-    full_paths = [os.path.join(base_directory, script_name) for script_name in scripts]
     output = ''
-    for path in full_paths:
+    for path in scripts:
         output = output + open(path).read()
     return Response(output, mimetype='text/css')
 
 @app.route('/assets/images/<path:filename>')
 def send_static_img(filename):
-    directory = os.path.join(os.getcwd(), 'assets', 'images')
+    directory = os.path.join('assets', 'images')
     return send_from_directory(directory, filename)
 
 @app.route('/views/<widget_name>.html')
 def widget_html(widget_name):
     html = '%s.html' % widget_name
-    base_directory = os.getcwd()
-    path = os.path.join(base_directory, 'widgets', widget_name, html)
-    if os.path.exists(path):
+    path = os.path.join('widgets', widget_name, html)
+    if os.path.isfile(path):
         f = open(path)
         contents = f.read()
         f.close()
