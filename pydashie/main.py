@@ -65,9 +65,14 @@ def send_static_img(filename):
 
 @app.route('/views/<widget_name>.html')
 def widget_html(widget_name):
+    html = '%s.html' % widget_name
     base_directory = os.getcwd()
-    path = os.path.join(base_directory, 'widgets', widget_name, '%s.html' % widget_name)
-    return open(path).read()
+    path = os.path.join(base_directory, 'widgets', widget_name, html)
+    if os.path.exists(path):
+        f = open(path)
+        contents = f.read()
+        f.close()
+        return contents
 
 import Queue
 
