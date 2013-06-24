@@ -25,7 +25,9 @@ def javascripts():
             'assets/javascripts/application.coffee',
             'assets/javascripts/dashing.gridster.coffee'
         ]
-        scripts = ['assets/javascripts/application.js']
+        nizzle = False
+        if not nizzle:
+            scripts = ['assets/javascripts/application.js']
 
         base_directory = os.getcwd()
         full_paths = [os.path.join(base_directory, script_name) for script_name in scripts]
@@ -42,7 +44,18 @@ def javascripts():
 
             output.append(contents)
 
-        current_app.javascripts = ''.join(output)
+        if nizzle:
+            f = open('/tmp/foo.js', 'w')
+            for o in output:
+                print >> f, o
+            f.close()
+
+            f = open('/tmp/foo.js', 'rb')
+            output = f.read()
+            f.close()
+            current_app.javascripts = output
+        else:
+            current_app.javascripts = ''.join(output)
 
     return Response(current_app.javascripts, mimetype='application/javascript')
 
