@@ -94,19 +94,22 @@ class Z:
 xyzzy = Z()
 xyzzy.events_queue = {}
 xyzzy.last_events = {}
+xyzzy.using_events = False
 
 @app.route('/events')
 def events():
-    event_stream_port = request.environ['REMOTE_PORT']
-    current_event_queue = Queue.Queue()
-    xyzzy.events_queue[event_stream_port] = current_event_queue
-    current_app.logger.info('New Client %s connected. Total Clients: %s' % (event_stream_port, len(xyzzy.events_queue)))
+    if xyzzy.using_events:
+        event_stream_port = request.environ['REMOTE_PORT']
+        current_event_queue = Queue.Queue()
+        xyzzy.events_queue[event_stream_port] = current_event_queue
+        current_app.logger.info('New Client %s connected. Total Clients: %s' %
+                                (event_stream_port, len(xyzzy.events_queue)))
 
-    #Start the newly connected client off by pushing the current last events
-    for event in xyzzy.last_events.values():
-        #print 'Pushed %s' % event
-        current_event_queue.put(event)
-    #return Response(pop_queue(current_event_queue), mimetype='text/event-stream')
+        #Start the newly connected client off by pushing the current last events
+        for event in xyzzy.last_events.values():
+            #print 'Pushed %s' % event
+            current_event_queue.put(event)
+        return Response(pop_queue(current_event_queue), mimetype='text/event-stream')
 
     return Response(xyzzy.last_events.values(), mimetype='text/event-stream')
 

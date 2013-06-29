@@ -1,4 +1,4 @@
-from test_samplers import *
+from example_samplers import *
 
 def run(app, xyzzy):
     samplers = [
