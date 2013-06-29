@@ -4,11 +4,19 @@ import random
 import collections
 
 class SynergySampler(DashieSampler):
+    def __init__(self, *args, **kwargs):
+        DashieSampler.__init__(self, *args, **kwargs)
+        self._last = 0
+
     def name(self):
         return 'synergy'
 
     def sample(self):
-        return {'value': random.randint(0, 100)}
+        s = {'value': random.randint(0, 100),
+             'current': random.randint(0, 100),
+             'last': self._last}
+        self._last = s['current']
+        return s
 
 class BuzzwordsSampler(DashieSampler):
     def name(self):

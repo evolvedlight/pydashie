@@ -361,7 +361,8 @@ li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
   opacity:0;
 }*/
 .widget-clock {
-  background-color: #dc5945; }
+/*  background-color: #dc5945; }*/
+  background-color: #ff0000; }
 .widget-comments {
   background-color: #eb9c3c; }
   .widget-comments .title {

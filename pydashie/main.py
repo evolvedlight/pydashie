@@ -29,6 +29,8 @@ def javascripts():
             'assets/javascripts/rickshaw.min.js',
             #'assets/javascripts/application.coffee',
             'assets/javascripts/app.js',
+            'widgets/clock/clock.coffee',
+            'widgets/number/number.coffee',
         ]
         nizzle = True
         if not nizzle:

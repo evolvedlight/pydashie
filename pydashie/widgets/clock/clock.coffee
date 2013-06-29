@@ -15,4 +15,4 @@ class Dashing.Clock extends Dashing.Widget
     @set('date', today.toDateString())
 
   formatTime: (i) ->
-    if i < 10 then "z0" + i else i
+    if i < 10 then "0" + i else i
