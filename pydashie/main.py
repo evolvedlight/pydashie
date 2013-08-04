@@ -49,18 +49,8 @@ def javascripts():
 
             output.append(contents)
 
-        if nizzle:
-            f = open('/tmp/foo.js', 'w')
-            for o in output:
-                print >> f, o
-            f.close()
-
-            f = open('/tmp/foo.js', 'rb')
-            output = f.read()
-            f.close()
-            current_app.javascripts = output
-        else:
-            current_app.javascripts = ''.join(output)
+        current_app.javascripts = '\n'.join(output)
+        
 
     return Response(current_app.javascripts, mimetype='application/javascript')
 
@@ -96,7 +86,8 @@ class Z:
 xyzzy = Z()
 xyzzy.events_queue = {}
 xyzzy.last_events = {}
-xyzzy.using_events = False
+xyzzy.using_events = True
+xyzzy.MAX_QUEUE_LENGTH = 20
 
 @app.route('/events')
 def events():
@@ -109,7 +100,6 @@ def events():
 
         #Start the newly connected client off by pushing the current last events
         for event in xyzzy.last_events.values():
-            #print 'Pushed %s' % event
             current_event_queue.put(event)
         return Response(pop_queue(current_event_queue), mimetype='text/event-stream')
 
@@ -118,18 +108,22 @@ def events():
 def pop_queue(current_event_queue):
     while True:
         data = current_event_queue.get()
-        print 'Popping data %s' % data
         yield data
-
+        
+def purge_streams():
+    big_queues = [port for port, queue in xyzzy.events_queue if len(queue) > xyzzy.MAX_QUEUE_LENGTH]
+    for big_queue in big_queues:
+        current_app.logger.info('Client %s is stale. Disconnecting. Total Clients: %s' %
+                                (big_queue, len(xyzzy.events_queue)))
+        del queue[big_queue]
+        
 def close_stream(*args, **kwargs):
-    print 'close_stream'
     event_stream_port = args[2][1]
-    del events_queue[event_stream_port]
-    print('Client %s disconnected. Total Clients: %s' % (event_stream_port, len(events_queue)))
+    del xyzzy.events_queue[event_stream_port]
+    print('Client %s disconnected. Total Clients: %s' % (event_stream_port, len(xyzzy.events_queue)))
 
 if __name__ == "__main__":
     import SocketServer
     SocketServer.BaseServer.handle_error = close_stream
-
     import example_app
     example_app.run(app, xyzzy)
