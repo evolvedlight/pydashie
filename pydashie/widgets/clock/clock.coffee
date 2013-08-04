@@ -6,7 +6,7 @@ class Dashing.Clock extends Dashing.Widget
   startTime: =>
     today = new Date()
 
-    h = today.getHours()
+    h = (today.getHours() % 13) + 1
     m = today.getMinutes()
     s = today.getSeconds()
     m = @formatTime(m)
