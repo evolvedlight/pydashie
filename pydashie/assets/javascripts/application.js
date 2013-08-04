@@ -14554,8 +14554,8 @@ Math.tan(e=a*fh),g):e/fh},g.origin=function(a){return arguments.length?(c=a[0]*f
     *
     * @method add_widget
     * @param {String} html The string representing the HTML of the widget.
-    * @param {Number} size_x The nÂº of rows the widget occupies horizontally.
-    * @param {Number} size_y The nÂº of columns the widget occupies vertically.
+    * @param {Number} size_x The no of rows the widget occupies horizontally.
+    * @param {Number} size_y The no of columns the widget occupies vertically.
     * @return {HTMLElement} Returns the jQuery wrapped HTMLElement representing.
     *  the widget that was just created.
     */
@@ -14583,8 +14583,8 @@ Math.tan(e=a*fh),g):e/fh},g.origin=function(a){return arguments.length?(c=a[0]*f
     * Get the most left column below to add a new widget.
     *
     * @method next_position
-    * @param {Number} size_x The nÂº of rows the widget occupies horizontally.
-    * @param {Number} size_y The nÂº of columns the widget occupies vertically.
+    * @param {Number} size_x The no of rows the widget occupies horizontally.
+    * @param {Number} size_y The no of columns the widget occupies vertically.
     * @return {Object} Returns a grid coords object representing the future
     *  widget coords.
     */
