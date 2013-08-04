@@ -1,12 +1,10 @@
 from example_samplers import *
-from pydashie.samplers.website_up import WebsiteUpSampler
 
 def run(app, xyzzy):
     samplers = [
         SynergySampler(xyzzy, 3),
         BuzzwordsSampler(xyzzy, 2), # 10
         ConvergenceSampler(xyzzy, 1),
-        WebsiteUpSampler(xyzzy, 1),
     ]
 
     try:
