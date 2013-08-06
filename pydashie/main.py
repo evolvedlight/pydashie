@@ -29,7 +29,7 @@ def javascripts():
             'assets/javascripts/rickshaw.min.js',
             #'assets/javascripts/application.coffee',
             'assets/javascripts/app.js',
-            'widgets/clock/clock.coffee',
+            #'widgets/clock/clock.coffee',
             'widgets/number/number.coffee',
         ]
         nizzle = True
@@ -49,7 +49,18 @@ def javascripts():
 
             output.append(contents)
 
-        current_app.javascripts = '\n'.join(output)
+        if nizzle:
+            f = open('/tmp/foo.js', 'w')
+            for o in output:
+                print >> f, o
+            f.close()
+
+            f = open('/tmp/foo.js', 'rb')
+            output = f.read()
+            f.close()
+            current_app.javascripts = output
+        else:
+            current_app.javascripts = ''.join(output)
         
 
     return Response(current_app.javascripts, mimetype='application/javascript')
