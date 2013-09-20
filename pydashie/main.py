@@ -99,6 +99,7 @@ xyzzy.events_queue = {}
 xyzzy.last_events = {}
 xyzzy.using_events = True
 xyzzy.MAX_QUEUE_LENGTH = 20
+xyzzy.stopped = False
 
 @app.route('/events')
 def events():
@@ -117,8 +118,13 @@ def events():
     return Response(xyzzy.last_events.values(), mimetype='text/event-stream')
 
 def pop_queue(current_event_queue):
-    while True:
-        data = current_event_queue.get()
+    while not xyzzy.stopped:
+        try:
+            data = current_event_queue.get(timeout=0.1)
+        except Queue.Empty:
+            #this makes the server quit nicely - previously the queue threads would block and never exit. This makes it keep checking for dead application
+            pass
+            
         yield data
         
 def purge_streams():

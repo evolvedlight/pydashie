@@ -15,6 +15,9 @@ def run(app, xyzzy):
                 use_debugger=True
                 )
     finally:
+        print "Disconnecting clients"
+        xyzzy.stopped = True
+        
         print "Stopping %d timers" % len(samplers)
         for (i, sampler) in enumerate(samplers):
             sampler.stop()
