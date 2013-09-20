@@ -1,11 +1,19 @@
 import os
+import logging
 from flask import Flask, render_template, Response, send_from_directory, request, current_app
 
 app = Flask(__name__)
+logging.basicConfig()
+log = logging.getLogger(__name__)
+
 
 @app.route("/")
 def main():
     return render_template('main.html', title='pyDashie')
+    
+@app.route("/dashboard/<dashlayout>/")
+def custom_layout(dashlayout):
+    return render_template('%s.html'%dashlayout, title='pyDashie')
 
 @app.route("/assets/application.js")
 def javascripts():
@@ -40,7 +48,7 @@ def javascripts():
         for path in scripts:
             output.append('// JS: %s\n' % path)
             if '.coffee' in path:
-                print('Compiling Coffee for %s ' % path)
+                log.info('Compiling Coffee for %s ' % path)
                 contents = coffeescript.compile_file(path)
             else:
                 f = open(path)
@@ -136,7 +144,7 @@ def purge_streams():
 def close_stream(*args, **kwargs):
     event_stream_port = args[2][1]
     del xyzzy.events_queue[event_stream_port]
-    print('Client %s disconnected. Total Clients: %s' % (event_stream_port, len(xyzzy.events_queue)))
+    log.info('Client %s disconnected. Total Clients: %s' % (event_stream_port, len(xyzzy.events_queue)))
 
 if __name__ == "__main__":
     import SocketServer
