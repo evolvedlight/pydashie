@@ -278,7 +278,7 @@
             }
             _this[k] = num;
             return _this.set(k, to);
-          });
+          }, 10);
         }
         return this[k] = num;
       }
