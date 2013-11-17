@@ -146,8 +146,13 @@ def close_stream(*args, **kwargs):
     del xyzzy.events_queue[event_stream_port]
     log.info('Client %s disconnected. Total Clients: %s' % (event_stream_port, len(xyzzy.events_queue)))
 
-if __name__ == "__main__":
+
+def run_sample_app():
     import SocketServer
     SocketServer.BaseServer.handle_error = close_stream
     import example_app
     example_app.run(app, xyzzy)
+
+
+if __name__ == "__main__":
+    run_sample_app()
