@@ -12,17 +12,14 @@ Installation
 
 For development purposes,
 
-    ::: python
     python setup.py develop
 
 OR
 
-    ::: python
     python setup.py install
 
 And you can run the application by
 
-    ::: bash
     pydashie
 
 Goto localhost:5000 to view the sample application in action.
